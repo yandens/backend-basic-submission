@@ -17,7 +17,7 @@ const routes = [
     handler: handler.getBookByIdHandler
   },
   {
-    method: "UPDATE",
+    method: "PUT",
     path: "/books/{id}",
     handler: handler.updateBookByIdHandler
   },
