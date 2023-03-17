@@ -19,11 +19,13 @@ const addBookHandler = (request, h) => {
   }
 
   const id = nanoid(16)
-  const finished = false
-  const createdAt = new Date().toISOString()
-  const updatedAt = createdAt
+  let finished = false
+  const insertedAt = new Date().toISOString()
+  const updatedAt = insertedAt
 
-  const newBook = { id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, createdAt, updatedAt }
+  if (readPage === pageCount) finished = true
+
+  const newBook = { id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, insertedAt, updatedAt }
   books.push(newBook)
 
   const isSuccess = books.filter(book => book.id === id).length > 0
@@ -38,13 +40,24 @@ const addBookHandler = (request, h) => {
     status: "success",
     message: "Buku berhasil ditambahkan",
     data: { bookId: id }
-  }).code(200)
+  }).code(201)
 }
 
 const getAllBooksHandler = (request, h) => {
+  const booksData = []
+  books.forEach(book => {
+    const data = {
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher
+    }
+
+    booksData.push(data)
+  })
+
   return h.response({
     status: "success",
-    data: { books }
+    data: { books: booksData }
   }).code(200)
 }
 
@@ -85,14 +98,14 @@ const updateBookByIdHandler = (request, h) => {
 
   const updatedAt = new Date().toISOString()
   const bookIndex = books.findIndex(book => book.id === id)
-  if (bookIndex < -1) {
+  if (bookIndex === -1) {
     return h.response({
       status: "fail",
       message: "Gagal memperbarui buku. Id tidak ditemukan"
     }).code(404)
   }
 
-  books[bookIndex] = { ...bookIndex[bookIndex], name, year, author, summary, publisher, pageCount, readPage, reading, updatedAt }
+  books[bookIndex] = { ...books[bookIndex], name, year, author, summary, publisher, pageCount, readPage, reading, updatedAt }
 
   return h.response({
     status: "success",
@@ -104,9 +117,9 @@ const deleteBookByIdHandler = (request, h) => {
   const { id } = request.params
 
   const bookIndex = books.findIndex(book => book.id === id)
-  if (bookIndex < -1) {
+  if (bookIndex === -1) {
     return h.response({
-      status: "failed",
+      status: "fail",
       message: "Buku gagal dihapus. Id tidak ditemukan"
     }).code(404)
   }
