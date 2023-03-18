@@ -44,8 +44,30 @@ const addBookHandler = (request, h) => {
 }
 
 const getAllBooksHandler = (request, h) => {
+  const { reading, finished, name } = request.query
+
   const booksData = []
-  books.forEach(book => {
+  let query
+
+  if (reading) {
+    if (reading === "1") {
+      query = books.filter(book => book.reading === true)
+    } else {
+      query = books.filter(book => book.reading === false)
+    }
+  } else if (finished) {
+    if (finished === "1") {
+      query = books.filter(book => book.finished === true)
+    } else {
+      query = books.filter(book => book.finished === false)
+    }
+  } else if (name) {
+    query = books.filter(book => book.name.toLowerCase().includes(name.toLowerCase()))
+  } else {
+    query = books
+  }
+
+  query.forEach(book => {
     const data = {
       id: book.id,
       name: book.name,
